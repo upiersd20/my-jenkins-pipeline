@@ -2,29 +2,50 @@ pipeline {
     agent any
     
     stages {
-        stage('Static Analysis') {
+        stage('Static Code Analysis') {
             steps {
-                echo 'Running static code analysis...'
+                echo '🔍 Running static code analysis...'
+                bat 'mvn --version'
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: '**/checkstyle-result.xml, **/pmd.xml', allowEmptyArchive: true
+                }
             }
         }
         
-        stage('Build') {
+        stage('Compile & Test') {
             steps {
-                echo 'Building project...'
+                echo '🛠️ Compiling and testing...'
+                bat 'mvn clean compile test'
+            }
+            post {
+                always {
+                    junit '**/target/surefire-reports/*.xml'
+                }
             }
         }
         
-        stage('Test') {
+        stage('Package') {
             steps {
-                echo 'Running tests...'
+                echo '📦 Creating JAR artifact...'
+                bat 'mvn package -DskipTests'
             }
         }
     }
     
     post {
         always {
-            echo 'Pipeline finished!'
-            archiveArtifacts artifacts: '**/*', fingerprint: true
+            echo '📂 Archiving artifacts...'
+            archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
+        }
+        
+        success {
+            echo "✅ Build SUCCESSFUL for branch: ${env.BRANCH_NAME}"
+        }
+        
+        failure {
+            echo "❌ Build FAILED! Check console output."
         }
     }
 }
