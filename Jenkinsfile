@@ -5,7 +5,7 @@ pipeline {
         maven 'Maven-3.8.1'   // Убедитесь, что название совпадает с Jenkins → Tools
         jdk 'JDK-11'          // Убедитесь, что название совпадает с Jenkins → Tools
     }
-    
+
     stages {
         // Этап 1: Статический анализ кода
         stage('Static Code Analysis') {
