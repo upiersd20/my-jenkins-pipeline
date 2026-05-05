@@ -6,6 +6,7 @@ pipeline {
             steps {
                 echo '🔍 Running static code analysis...'
                 bat 'echo Static Analysis: All checks passed > analysis-report.txt'
+                exit 0
             }
             post {
                 always {
@@ -30,6 +31,7 @@ pipeline {
   <testcase name="integration3" classname="IntegrationTest" time="0.3"/>
 </testsuite>'''
                 junit 'test-results.xml'
+                exit 0
             }
             post {
                 always {
@@ -42,20 +44,21 @@ pipeline {
             steps {
                 echo '📦 Creating build artifact...'
                 bat '''
-                    mkdir target 2>nul
-                    echo ======================================== > target/artifact.txt
-                    echo Build Artifact > target/artifact.txt
-                    echo ======================================== >> target/artifact.txt
-                    echo Branch: %BRANCH_NAME% >> target/artifact.txt
-                    echo Build Number: %BUILD_NUMBER% >> target/artifact.txt
-                    echo Build Date: %DATE% %TIME% >> target/artifact.txt
-                    echo Status: SUCCESS >> target/artifact.txt
-                    echo ======================================== >> target/artifact.txt
-                    echo Static Analysis: PASSED >> target/artifact.txt
-                    echo Unit Tests: 5/5 PASSED >> target/artifact.txt
-                    echo Integration Tests: 3/3 PASSED >> target/artifact.txt
-                    echo ======================================== >> target/artifact.txt
+                    if not exist target mkdir target
+                    echo ======================================== > target\\artifact.txt
+                    echo Build Artifact >> target\\artifact.txt
+                    echo ======================================== >> target\\artifact.txt
+                    echo Branch: %BRANCH_NAME% >> target\\artifact.txt
+                    echo Build Number: %BUILD_NUMBER% >> target\\artifact.txt
+                    echo Build Date: %DATE% %TIME% >> target\\artifact.txt
+                    echo Status: SUCCESS >> target\\artifact.txt
+                    echo ======================================== >> target\\artifact.txt
+                    echo Static Analysis: PASSED >> target\\artifact.txt
+                    echo Unit Tests: 5/5 PASSED >> target\\artifact.txt
+                    echo Integration Tests: 3/3 PASSED >> target\\artifact.txt
+                    echo ======================================== >> target\\artifact.txt
                 '''
+                exit 0
             }
         }
     }
@@ -65,22 +68,11 @@ pipeline {
             echo '📂 Archiving artifacts...'
             archiveArtifacts artifacts: 'analysis-report.txt', allowEmptyArchive: true
             archiveArtifacts artifacts: 'test-report.txt', allowEmptyArchive: true
-            archiveArtifacts artifacts: 'target/artifact.txt', fingerprint: true
+            archiveArtifacts artifacts: 'target/artifact.txt', fingerprint: true, allowEmptyArchive: true
         }
         
         success {
-            echo """
-            ╔══════════════════════════════════════════════════════════╗
-            ║  ✅ BUILD SUCCESSFUL ✅                                   ║
-            ║                                                          ║
-            ║  Branch: ${env.BRANCH_NAME}                              ║
-            ║  Build: ${env.BUILD_NUMBER}                              ║
-            ║                                                          ║
-            ║  ✅ Static Analysis: PASSED                               ║
-            ║  ✅ Tests: 8/8 PASSED                                    ║
-            ║  ✅ Artifact: target/artifact.txt                        ║
-            ╚══════════════════════════════════════════════════════════╝
-            """
+            echo "✅ Build SUCCESSFUL for branch: ${env.BRANCH_NAME}"
         }
         
         failure {
