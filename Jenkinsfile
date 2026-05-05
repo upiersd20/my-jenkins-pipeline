@@ -1,18 +1,19 @@
 pipeline {
     agent any
     
+    tools {
+        maven 'Maven-3'
+    }
+    
     stages {
         stage('Static Code Analysis') {
             steps {
                 echo '🔍 Running static code analysis...'
-                // Для Windows используем bat вместо sh
                 bat 'mvn --version'
-                bat 'mvn checkstyle:checkstyle pmd:pmd || echo "Анализ пропущен - плагины не настроены"'
+                bat 'mvn checkstyle:checkstyle pmd:pmd'
             }
             post {
                 always {
-                    // Убираем recordIssues, так как нет плагина
-                    // Просто архивируем отчёты
                     archiveArtifacts artifacts: '**/checkstyle-result.xml, **/pmd.xml', allowEmptyArchive: true
                 }
             }
@@ -42,7 +43,6 @@ pipeline {
         always {
             echo '📂 Archiving artifacts...'
             archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
-            archiveArtifacts artifacts: '**/target/*.xml', allowEmptyArchive: true
         }
         
         success {
