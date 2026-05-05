@@ -1,11 +1,16 @@
 pipeline {
     agent any
     
+    tools {
+        maven 'Maven-3'   // Имя должно совпадать с настройками
+    }
+    
     stages {
         stage('Static Code Analysis') {
             steps {
                 echo '🔍 Running static code analysis...'
                 bat 'mvn --version'
+                bat 'mvn checkstyle:checkstyle pmd:pmd'
             }
             post {
                 always {
