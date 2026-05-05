@@ -6,7 +6,6 @@ pipeline {
             steps {
                 echo '🔍 Running static code analysis...'
                 bat 'echo Static Analysis: All checks passed > analysis-report.txt'
-                exit 0
             }
             post {
                 always {
@@ -31,7 +30,6 @@ pipeline {
   <testcase name="integration3" classname="IntegrationTest" time="0.3"/>
 </testsuite>'''
                 junit 'test-results.xml'
-                exit 0
             }
             post {
                 always {
@@ -58,7 +56,6 @@ pipeline {
                     echo Integration Tests: 3/3 PASSED >> target\\artifact.txt
                     echo ======================================== >> target\\artifact.txt
                 '''
-                exit 0
             }
         }
     }
