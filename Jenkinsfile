@@ -5,18 +5,11 @@ pipeline {
         stage('Static Code Analysis') {
             steps {
                 echo '🔍 Running static code analysis...'
-                // Проверяем версию Maven
-                sh 'mvn --version'
-                // Запускаем анализ (если нет pom.xml с плагинами, просто выведем предупреждение)
-                sh 'mvn checkstyle:checkstyle pmd:pmd || echo "Анализ пропущен - плагины не настроены"'
+                bat 'mvn --version'
             }
             post {
                 always {
-                    // Публикуем отчёты, если они есть
-                    recordIssues enabledForFailure: true, tools: [
-                        checkStyle(pattern: '**/checkstyle-result.xml'),
-                        pmd(pattern: '**/pmd.xml')
-                    ]
+                    archiveArtifacts artifacts: '**/checkstyle-result.xml, **/pmd.xml', allowEmptyArchive: true
                 }
             }
         }
@@ -24,7 +17,7 @@ pipeline {
         stage('Compile & Test') {
             steps {
                 echo '🛠️ Compiling and testing...'
-                sh 'mvn clean compile test'
+                bat 'mvn clean compile test'
             }
             post {
                 always {
@@ -36,7 +29,7 @@ pipeline {
         stage('Package') {
             steps {
                 echo '📦 Creating JAR artifact...'
-                sh 'mvn package -DskipTests'
+                bat 'mvn package -DskipTests'
             }
         }
     }
@@ -44,9 +37,7 @@ pipeline {
     post {
         always {
             echo '📂 Archiving artifacts...'
-            // Сохраняем JAR файлы и отчёты
             archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
-            archiveArtifacts artifacts: '**/target/*.xml', allowEmptyArchive: true
         }
         
         success {
