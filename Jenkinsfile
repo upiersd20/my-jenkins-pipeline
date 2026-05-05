@@ -4,7 +4,7 @@ pipeline {
     tools {
         maven 'Maven-3'   // Имя должно совпадать с настройками
     }
-    
+
     stages {
         stage('Static Code Analysis') {
             steps {
