@@ -18,7 +18,7 @@ pipeline {
     </file>
     <file name="src/main/java/com/example/Helper.java">
         <error line="3" column="1" severity="error" message="Unused import statement" source="imports"/>
-        <error line="10" column="8" severity="warning" message="Variable 'x' is too short" source="naming"/>
+        <error line="10" column="8" severity="warning" message="Variable "x" is too short" source="naming"/>
     </file>
 </checkstyle>'''
                 
@@ -39,12 +39,11 @@ pipeline {
             }
             post {
                 always {
-                    // ИСПОЛЬЗУЕМ ПЛАГИН WARNINGS NEXT GENERATION
+                    // ПРАВИЛЬНЫЙ СИНТАКСИС для Warnings NG
                     recordIssues enabledForFailure: true,
-                                  aggregatingResults: true,
                                   tools: [
                                       checkStyle(pattern: 'checkstyle-result.xml'),
-                                      pmd(pattern: 'pmd.xml')
+                                      pmdParser(pattern: 'pmd.xml')
                                   ]
                     
                     // Сохраняем отчёты как артефакты
@@ -105,7 +104,6 @@ pipeline {
             archiveArtifacts artifacts: 'analysis-report.txt', allowEmptyArchive: true
             archiveArtifacts artifacts: 'test-report.txt', allowEmptyArchive: true
             archiveArtifacts artifacts: 'target/artifact.txt', fingerprint: true, allowEmptyArchive: true
-            archiveArtifacts artifacts: 'target/*', fingerprint: true, allowEmptyArchive: true
         }
         
         success {
