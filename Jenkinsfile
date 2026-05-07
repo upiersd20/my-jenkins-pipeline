@@ -59,7 +59,28 @@ pipeline {
             }
         }
     }
-    
+    stage('Static Code Analysis') {
+    steps {
+        echo '🔍 Running static code analysis...'
+        
+        // Генерация отчёта в формате, который понимает Warnings NG
+        // Допустим, ваш анализатор умеет создавать checkstyle.xml
+        bat 'mvn checkstyle:checkstyle pmd:pmd'
+    }
+    post {
+        always {
+            // !!! НОВЫЙ ШАГ: Публикация отчётов через плагин !!!
+            recordIssues enabledForFailure: true,
+                          tools: [
+                              checkStyle(pattern: '**/checkstyle-result.xml'),
+                              pmd(pattern: '**/pmd.xml')
+                          ]
+            
+            // Старый способ (архивация файлов) можно оставить как резервный
+            archiveArtifacts artifacts: '**/checkstyle-result.xml, **/pmd.xml', allowEmptyArchive: true
+        }
+    }
+}
     post {
         always {
             echo '📂 Archiving artifacts...'
